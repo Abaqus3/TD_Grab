@@ -1,0 +1,79 @@
+ private void GetCCFDir()
+        {
+            m_currentCCFDir = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
+        }
+        private void UpdataCCFFiles()
+        {
+            ccffiles.Clear();
+            String m_CCFDir = m_currentCCFDir;
+            DirectoryInfo dir = new DirectoryInfo(m_CCFDir);
+            if (dir.Exists)
+            {
+                FileInfo[] ccfInfo = dir.GetFiles("*.ccf");
+                foreach (FileInfo f in ccfInfo)
+                {
+                    ccffiles.Add(f.Name);
+                    comboBox_Ccffiles.Items.Add(f.Name);
+                }
+            }
+        }
+        private bool InitServer()
+        {
+            comboBox_Server.Items.Clear();
+
+            for (int i = 1; i < SapManager.GetServerCount(); i++)
+            {
+                bool Acq = (m_ServerCateGory == ServerCategory.ServerAll || m_ServerCateGory == ServerCategory.ServerAcq &&
+                    SapManager.GetResourceCount(i, SapManager.ResourceType.Acq) > 0);//||或的关系，返回值为bool类型
+                //bool AcqDevice
+                if (Acq)
+                {
+                    string ServerName = SapManager.GetServerName(i);
+
+                    comboBox_Server.Items.Add(ServerName);
+                    if (ServerName.Contains("CameraLink_"))
+                    {
+                        comboBox_Server.Items.Remove(ServerName);
+                    }
+                }
+
+                if (comboBox_Server.Items.Count <= 0)
+                {
+                    return false;
+                }
+
+                else
+                {
+                    if (string.IsNullOrEmpty(m_serverName) || comboBox_Server.FindString(m_serverName, 0) == -1)
+                    {
+                        comboBox_Server.SelectedIndex = 0;
+                        m_serverName = comboBox_Server.SelectedItem.ToString();
+                    }
+                }
+                InitResource();
+            }
+            return true;
+        }
+        private void InitResource()
+        {
+            comboBox_Device.Items.Clear();
+
+            Object SelectItem = comboBox_Server.SelectedItem;//通过选择的server来加载设备模式
+
+            for (int i = 0; i < SapManager.GetResourceCount(SelectItem.ToString(), SapManager.ResourceType.Acq); i++)
+            {
+                string ResourceName = SapManager.GetResourceName(SelectItem.ToString(), SapManager.ResourceType.Acq, i);
+                comboBox_Device.Items.Add(ResourceName);
+                if (i == m_resourceIndex)
+                {
+                    comboBox_Device.SelectedItem = ResourceName; //启动展示第一项
+                }
+                else
+                {
+                    comboBox_Device.Items.Add("Not Available - Resource in use");
+                    comboBox_Device.SelectedItem = 0;
+                }
+                // m_resourceName = comboBox_Device.SelectedItem.ToString();
+                m_resourceIndex = comboBox_Device.SelectedIndex;
+            }
+        }
