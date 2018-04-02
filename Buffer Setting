@@ -1,0 +1,23 @@
+ private void InitFormat()
+        {
+            SapFormatInfo Mono1 = new SapFormatInfo(SapFormat.Mono8, "Monochrome 8-bit");
+            comboBox_Format.Items.Add(Mono1);
+
+            comboBox_Format.SelectedIndex = 0;
+
+            //设置buffer记忆类型
+            m_type = SapBuffer.MemoryType.ScatterGather;
+        }
+
+        private void button_BufferOk_Click(object sender, EventArgs e)
+        {
+            m_Count = int.Parse(textBox_Count.Text);
+            m_Height = int.Parse(textBox_Height.Text);
+            m_Width = int.Parse(textBox_Width.Text);
+        }
+
+        private void comboBox_Format_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            SapFormatInfo formatInfo = (SapFormatInfo)comboBox_Format.SelectedItem;
+            m_format = formatInfo.Value;
+        }
